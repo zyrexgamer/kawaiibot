@@ -68,7 +68,7 @@ async def upstream(ups):
     except InvalidGitRepositoryError:
         repo = Repo.init()
         origin = repo.create_remote('upstream', off_repo)
-        #origin.fetch()
+        origin.fetch()
         repo.create_head('master', origin.refs.master)
         repo.heads.master.checkout(True)
 
@@ -115,8 +115,6 @@ async def upstream(ups):
         return
 
     await ups.edit('`New update found, updating...`')
-    ups_rem.fetch(ac_br)
-    repo.git.reset("--hard")
     if getenv("DYNO", False):
         import heroku3
         if not HEROKU_APIKEY:
@@ -156,6 +154,8 @@ async def upstream(ups):
             await ups.edit('`Successfully Updated!\n'
                                'Bot is restarting... Wait for a second!`')
     else:
+        ups_rem.fetch(ac_br)
+        repo.git.reset("--hard")
         reqs_upgrade = await update_requirements()
         await ups.edit('`Successfully Updated!\n'
                        'Bot is restarting... Wait for a second!`')
