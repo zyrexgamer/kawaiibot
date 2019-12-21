@@ -179,6 +179,9 @@
       "url": "https://github.com/heroku/heroku-buildpack-chromedriver"
     },
     {
+      "url": "heroku-community/apt"
+    },
+    {
       "url": "heroku/python"
     }
   ]
