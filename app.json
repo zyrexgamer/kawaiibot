@@ -25,11 +25,6 @@
       "description": "Get this value by running [python3 string_session.py] in Termux or local system.",
       "required": true
     },
-    "HEROKU_MEMEZ": {
-      "description": "This should be True if the userbor is running on a Heroku Dyno.",
-      "value": "True",
-      "required": true
-    },
     "UPSTREAM_REPO_URL": {
       "description": "In case you maintain a fork, add your repo URL here.",
       "required": false
