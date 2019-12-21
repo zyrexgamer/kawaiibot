@@ -68,7 +68,7 @@ async def upstream(ups):
     except InvalidGitRepositoryError:
         repo = Repo.init()
         origin = repo.create_remote('upstream', off_repo)
-        origin.fetch()
+        #origin.fetch()
         repo.create_head('master', origin.refs.master)
         repo.heads.master.checkout(True)
 
