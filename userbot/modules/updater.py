@@ -115,6 +115,7 @@ async def upstream(ups):
         return
 
     await ups.edit('`New update found, updating...`')
+    # We're in a Heroku Dyno, handle it's memez.
     if getenv("DYNO", False):
         import heroku3
         if not HEROKU_APIKEY:
@@ -138,6 +139,8 @@ async def upstream(ups):
                     if build.status == "pending":
                         await ups.edit('`A userbot dyno build is in progress, please wait for it to finish.`')
                         return
+            ups_rem.fetch(ac_br)
+            repo.git.reset("--hard", "FETCH_HEAD")
             url = f"https://api:{HEROKU_APIKEY}@git.heroku.com/{heroku_app.name}.git"
             if "heroku" in repo.remotes:
                 repo.remotes['heroku'].set_url(url)
@@ -154,12 +157,12 @@ async def upstream(ups):
             await ups.edit('`Successfully Updated!\n'
                                'Bot is restarting... Wait for a second!`')
     else:
+        # Classic Updater, pretty straightforward.
         ups_rem.fetch(ac_br)
-        repo.git.reset("--hard")
+        repo.git.reset('--hard', 'FETCH_HEAD')
         reqs_upgrade = await update_requirements()
         await ups.edit('`Successfully Updated!\n'
                        'Bot is restarting... Wait for a second!`')
-        await ups.client.disconnect()
         # Spin a new instance of bot
         args = [sys.executable, "-m", "userbot"]
         execle(sys.executable, *args, os.environ)
