@@ -139,6 +139,8 @@ async def upstream(ups):
                     if build.status == "pending":
                         await ups.edit('`A userbot dyno build is in progress, please wait for it to finish.`')
                         return
+            await ups.edit('`[HEROKU MEMEZ]\
+                            \nUserbot dyno build in progress, please wait.`')
             ups_rem.fetch(ac_br)
             repo.git.reset("--hard", "FETCH_HEAD")
             url = f"https://api:{HEROKU_APIKEY}@git.heroku.com/{heroku_app.name}.git"
@@ -147,7 +149,6 @@ async def upstream(ups):
             else:
                 repo.create_remote('heroku', url)
             heroku_app.enable_feature('runtime-dyno-metadata')
-            await ups.edit('`[HEROKU MEMEZ] Userbot dyno build in progress, please wait.`')
             remote = repo.remotes['heroku']
             try:
                 remote.push(refspec=f'{repo.active_branch.name}:master')
