@@ -88,7 +88,7 @@ async def upstream(ups):
 
     ups_rem = repo.remote('upstream')
     ups_rem.fetch(ac_br)
-    
+
     changelog = await gen_chlog(repo, f'HEAD..upstream/{ac_br}')
 
     if not changelog:
@@ -119,25 +119,33 @@ async def upstream(ups):
     if getenv("DYNO", False):
         import heroku3
         if not HEROKU_APIKEY:
-            await ups.edit('`[HEROKU MEMEZ] Please set up the HEROKU_APIKEY variable to be able to update userbot.`')
+            await ups.edit(
+                '`[HEROKU MEMEZ] Please set up the HEROKU_APIKEY variable to be able to update userbot.`'
+            )
             return
         heroku = heroku3.from_key(HEROKU_APIKEY)
         heroku_app = None
         heroku_applications = heroku.apps()
         if not HEROKU_APPNAME:
-            await ups.edit('`[HEROKU MEMEZ] Please set up the HEROKU_APPNAME variable to be able to update userbot.`')
+            await ups.edit(
+                '`[HEROKU MEMEZ] Please set up the HEROKU_APPNAME variable to be able to update userbot.`'
+            )
             return
         for app in heroku_applications:
             if app.name == str(HEROKU_APPNAME):
                 heroku_app = app
                 break
             if heroku_app is None:
-                await ups.edit(f'{txt}\n`Invalid Heroku credentials for updating userbot dyno.`')
+                await ups.edit(
+                    f'{txt}\n`Invalid Heroku credentials for updating userbot dyno.`'
+                )
                 return
             else:
                 for build in heroku_app.builds():
                     if build.status == "pending":
-                        await ups.edit('`A userbot dyno build is in progress, please wait for it to finish.`')
+                        await ups.edit(
+                            '`A userbot dyno build is in progress, please wait for it to finish.`'
+                        )
                         return
             await ups.edit('`[HEROKU MEMEZ]\
                             \nUserbot dyno build in progress, please wait.`')
@@ -156,7 +164,7 @@ async def upstream(ups):
                 await ups.edit(f'{txt}\n`Here is the error log:\n{error}`')
                 return
             await ups.edit('`Successfully Updated!\n'
-                               'Bot is restarting... Wait for a second!`')
+                           'Bot is restarting... Wait for a second!`')
     else:
         # Classic Updater, pretty straightforward.
         ups_rem.fetch(ac_br)
