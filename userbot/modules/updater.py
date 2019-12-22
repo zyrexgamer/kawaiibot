@@ -49,6 +49,7 @@ async def upstream(ups):
     await ups.edit("`Checking for updates, please wait....`")
     conf = ups.pattern_match.group(1)
     off_repo = UPSTREAM_REPO_URL
+    force_update = False
 
     try:
         txt = "`Oops.. Updater cannot continue due to "
@@ -66,6 +67,7 @@ async def upstream(ups):
         repo = Repo.init()
         origin = repo.create_remote('upstream', off_repo)
         origin.fetch()
+        force_update = True
         repo.create_head('master', origin.refs.master)
         repo.heads.master.set_tracking_branch(origin.refs.master)
         repo.heads.master.checkout(True)
@@ -90,13 +92,13 @@ async def upstream(ups):
 
     changelog = await gen_chlog(repo, f'HEAD..upstream/{ac_br}')
 
-    if not changelog:
+    if not changelog and not force_update:
         await ups.edit(
             f'\n`Your BOT is`  **up-to-date**  `with`  **{ac_br}**\n')
         repo.__del__()
         return
 
-    if conf != "now":
+    if conf != "now" and not force_update:
         changelog_str = f'**New UPDATE available for [{ac_br}]:\n\nCHANGELOG:**\n`{changelog}`'
         if len(changelog_str) > 4096:
             await ups.edit("`Changelog is too big, view the file to see it.`")
@@ -114,7 +116,7 @@ async def upstream(ups):
         await ups.respond('`do \".update now\" to update`')
         return
 
-    await ups.edit('`New update found, updating...`')
+    await ups.edit('`Updating userbot, please wait...`')
     # We're in a Heroku Dyno, handle it's memez.
     if getenv("DYNO", False):
         import heroku3
