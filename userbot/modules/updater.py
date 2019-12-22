@@ -118,14 +118,8 @@ async def upstream(ups):
 
     await ups.edit('`Updating userbot, please wait...`')
     # We're in a Heroku Dyno, handle it's memez.
-    if getenv("DYNO", False):
+    if HEROKU_APIKEY is not None:
         import heroku3
-        if not HEROKU_APIKEY:
-            await ups.edit(
-                '`[HEROKU MEMEZ] Please set up the HEROKU_APIKEY variable to be able to update userbot.`'
-            )
-            repo.__del__()
-            return
         heroku = heroku3.from_key(HEROKU_APIKEY)
         heroku_app = None
         heroku_applications = heroku.apps()
@@ -136,7 +130,7 @@ async def upstream(ups):
             repo.__del__()
             return
         for app in heroku_applications:
-            if app.name == str(HEROKU_APPNAME):
+            if str(app.name) == str(HEROKU_APPNAME):
                 heroku_app = app
                 break
             if heroku_app is None:
@@ -156,7 +150,7 @@ async def upstream(ups):
             else:
                 remote = repo.create_remote("heroku", heroku_git_url)
             try:
-                remote.push(refspec="HEAD:refs/heads/master")
+                remote.push(refspec="HEAD:refs/heads/master", force=True)
             except GitCommandError as error:
                 await ups.edit(f'{txt}\n`Here is the error log:\n{error}`')
                 repo.__del__()
