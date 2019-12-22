@@ -30,11 +30,6 @@ async def gen_chlog(repo, diff):
     return ch_log
 
 
-async def initial_git(repo):
-    update = repo.create_remote('master', UPSTREAM_REPO_URL)
-    update.pull('master')
-
-
 async def update_requirements():
     reqs = str(requirements_path)
     try:
@@ -61,15 +56,18 @@ async def upstream(ups):
         repo = Repo()
     except NoSuchPathError as error:
         await ups.edit(f'{txt}\n`directory {error} is not found`')
+        repo.__del__()
         return
     except GitCommandError as error:
         await ups.edit(f'{txt}\n`Early failure! {error}`')
+        repo.__del__()
         return
     except InvalidGitRepositoryError:
         repo = Repo.init()
         origin = repo.create_remote('upstream', off_repo)
         origin.fetch()
         repo.create_head('master', origin.refs.master)
+        repo.heads.master.set_tracking_branch(origin.refs.master)
         repo.heads.master.checkout(True)
 
     ac_br = repo.active_branch.name
@@ -79,6 +77,7 @@ async def upstream(ups):
             'in that case, Updater is unable to identify '
             'which branch is to be merged. '
             'please checkout to any official branch`')
+        repo.__del__()
         return
 
     try:
@@ -94,6 +93,7 @@ async def upstream(ups):
     if not changelog:
         await ups.edit(
             f'\n`Your BOT is`  **up-to-date**  `with`  **{ac_br}**\n')
+        repo.__del__()
         return
 
     if conf != "now":
@@ -122,6 +122,7 @@ async def upstream(ups):
             await ups.edit(
                 '`[HEROKU MEMEZ] Please set up the HEROKU_APIKEY variable to be able to update userbot.`'
             )
+            repo.__del__()
             return
         heroku = heroku3.from_key(HEROKU_APIKEY)
         heroku_app = None
@@ -130,6 +131,7 @@ async def upstream(ups):
             await ups.edit(
                 '`[HEROKU MEMEZ] Please set up the HEROKU_APPNAME variable to be able to update userbot.`'
             )
+            repo.__del__()
             return
         for app in heroku_applications:
             if app.name == str(HEROKU_APPNAME):
@@ -139,6 +141,7 @@ async def upstream(ups):
                 await ups.edit(
                     f'{txt}\n`Invalid Heroku credentials for updating userbot dyno.`'
                 )
+                repo.__del__()
                 return
             else:
                 for build in heroku_app.builds():
@@ -146,6 +149,7 @@ async def upstream(ups):
                         await ups.edit(
                             '`A userbot dyno build is in progress, please wait for it to finish.`'
                         )
+                        repo.__del__()
                         return
             await ups.edit('`[HEROKU MEMEZ]\
                             \nUserbot dyno build in progress, please wait.`')
@@ -159,16 +163,19 @@ async def upstream(ups):
             heroku_app.enable_feature('runtime-dyno-metadata')
             remote = repo.remotes['heroku']
             try:
-                remote.push(refspec=f'{repo.active_branch.name}:master')
+                remote.push(refspec="HEAD:refs/heads/master")
             except GitCommandError as error:
                 await ups.edit(f'{txt}\n`Here is the error log:\n{error}`')
+                repo.__del__()
                 return
             await ups.edit('`Successfully Updated!\n'
                            'Bot is restarting... Wait for a second!`')
     else:
         # Classic Updater, pretty straightforward.
-        ups_rem.fetch(ac_br)
-        repo.git.reset('--hard', 'FETCH_HEAD')
+        try:
+            ups_rem.pull(ac_br)
+        except GitCommandError:
+            repo.git.reset("--hard", "FETCH_HEAD")
         reqs_upgrade = await update_requirements()
         await ups.edit('`Successfully Updated!\n'
                        'Bot is restarting... Wait for a second!`')
