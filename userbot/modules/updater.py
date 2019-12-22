@@ -145,25 +145,16 @@ async def upstream(ups):
                 )
                 repo.__del__()
                 return
-            else:
-                for build in heroku_app.builds():
-                    if build.status == "pending":
-                        await ups.edit(
-                            '`A userbot dyno build is in progress, please wait for it to finish.`'
-                        )
-                        repo.__del__()
-                        return
             await ups.edit('`[HEROKU MEMEZ]\
                             \nUserbot dyno build in progress, please wait.`')
             ups_rem.fetch(ac_br)
             repo.git.reset("--hard", "FETCH_HEAD")
-            url = f"https://api:{HEROKU_APIKEY}@git.heroku.com/{heroku_app.name}.git"
+            heroku_git_url = heroku_app.git_url.replace("https://", "https://api:" + HEROKU_APIKEY + "@")
             if "heroku" in repo.remotes:
-                repo.remotes['heroku'].set_url(url)
+                remote = repo.remote("heroku")
+                remote.set_url(heroku_git_url)
             else:
-                repo.create_remote('heroku', url)
-            heroku_app.enable_feature('runtime-dyno-metadata')
-            remote = repo.remotes['heroku']
+                remote = repo.create_remote("heroku", heroku_git_url)
             try:
                 remote.push(refspec="HEAD:refs/heads/master")
             except GitCommandError as error:
