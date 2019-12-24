@@ -130,7 +130,7 @@ async def upstream(ups):
             repo.__del__()
             return
         for app in heroku_applications:
-            if str(app.name) == str(HEROKU_APPNAME):
+            if app.name == str(HEROKU_APPNAME):
                 heroku_app = app
                 break
             if heroku_app is None:
