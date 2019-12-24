@@ -63,7 +63,11 @@ async def upstream(ups):
         await ups.edit(f'{txt}\n`Early failure! {error}`')
         repo.__del__()
         return
-    except InvalidGitRepositoryError:
+    except InvalidGitRepositoryError as error:
+        if conf != "now":
+            await ups.edit(f"`Unfortunately, the directory {error} does not seem to be a git repository.\
+            \nBut we can fix that by force updating the userbot using .update now.`"
+            return
         repo = Repo.init()
         origin = repo.create_remote('upstream', off_repo)
         origin.fetch()
@@ -116,7 +120,10 @@ async def upstream(ups):
         await ups.respond('`do \".update now\" to update`')
         return
 
-    await ups.edit('`Updating userbot, please wait...`')
+    if force_update:
+        await ups.edit('`Force-Syncing to latest stable userbot code, please wait...`')
+    else:
+        await ups.edit('`Updating userbot, please wait....`')
     # We're in a Heroku Dyno, handle it's memez.
     if HEROKU_APIKEY is not None:
         import heroku3
@@ -140,7 +147,7 @@ async def upstream(ups):
             repo.__del__()
             return
         await ups.edit('`[HEROKU MEMEZ]\
-                        \nUserbot dyno build in progress, please wait.`')
+                        \nUserbot dyno build in progress, please wait for it to complete.`')
         ups_rem.fetch(ac_br)
         repo.git.reset("--hard", "FETCH_HEAD")
         heroku_git_url = heroku_app.git_url.replace("https://", "https://api:" + HEROKU_APIKEY + "@")
@@ -156,7 +163,7 @@ async def upstream(ups):
             repo.__del__()
             return
         await ups.edit('`Successfully Updated!\n'
-                       'Bot is restarting... Wait for a second!`')
+                       'Restarting, please wait...`')
     else:
         # Classic Updater, pretty straightforward.
         try:
