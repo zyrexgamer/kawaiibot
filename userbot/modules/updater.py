@@ -65,8 +65,10 @@ async def upstream(ups):
         return
     except InvalidGitRepositoryError as error:
         if conf != "now":
-            await ups.edit(f"`Unfortunately, the directory {error} does not seem to be a git repository.\
+            await ups.edit(
+                f"`Unfortunately, the directory {error} does not seem to be a git repository.\
             \nBut we can fix that by force updating the userbot using .update now.`"
+            )
             return
         repo = Repo.init()
         origin = repo.create_remote('upstream', off_repo)
@@ -121,7 +123,8 @@ async def upstream(ups):
         return
 
     if force_update:
-        await ups.edit('`Force-Syncing to latest stable userbot code, please wait...`')
+        await ups.edit(
+            '`Force-Syncing to latest stable userbot code, please wait...`')
     else:
         await ups.edit('`Updating userbot, please wait....`')
     # We're in a Heroku Dyno, handle it's memez.
@@ -147,10 +150,12 @@ async def upstream(ups):
             repo.__del__()
             return
         await ups.edit('`[HEROKU MEMEZ]\
-                        \nUserbot dyno build in progress, please wait for it to complete.`')
+                        \nUserbot dyno build in progress, please wait for it to complete.`'
+                       )
         ups_rem.fetch(ac_br)
         repo.git.reset("--hard", "FETCH_HEAD")
-        heroku_git_url = heroku_app.git_url.replace("https://", "https://api:" + HEROKU_APIKEY + "@")
+        heroku_git_url = heroku_app.git_url.replace(
+            "https://", "https://api:" + HEROKU_APIKEY + "@")
         if "heroku" in repo.remotes:
             remote = repo.remote("heroku")
             remote.set_url(heroku_git_url)

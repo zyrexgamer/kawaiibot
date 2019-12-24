@@ -23,29 +23,20 @@ A pack can't have more than 120 stickers at the moment."
 
 KANGING_STR = [
     "Using Witchery to kang this sticker...",
-    
     "Plagiarising hehe...",
-    
     "Inviting this sticker over to my pack...",
-    
     "Kanging this sticker...",
-    
     "Hey that's a nice sticker!\
     \nMind if I kang?!..",
-    
     "hehe me stel ur stikér\
     \nhehe.",
-    
     "Ay look over there (☉｡☉)!→\
     \nWhile I kang this...",
-    
     "Roses are red \
     \nviolets are blue, \
     \nkanging this sticker \
     \nso my pacc looks cool",
-    
     "Imprisoning this sticker...",
-    
     "Mr.Steal Your Sticker is stealing this sticker... ",
 ]
 
